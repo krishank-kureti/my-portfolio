@@ -1,6 +1,7 @@
 "use server";
 
 import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 import { STORAGE_BUCKET } from "@/lib/constants";
 
 export async function uploadImage(formData: FormData) {
@@ -22,22 +23,33 @@ export async function uploadImage(formData: FormData) {
 
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-  const service = createServiceClient();
-  const { data, error } = await service.storage
+  // Try service client first (bypasses RLS), then fall back to server client
+  let service = createServiceClient();
+  let { data, error } = await service.storage
     .from(STORAGE_BUCKET)
-    .upload(fileName, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
+    .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+  // If service client fails (e.g. missing env var on Vercel), try server client
+  if (error) {
+    console.warn("Service client upload failed:", error.message);
+    const supabase = await createClient();
+    const result = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, file, { cacheControl: "3600", upsert: false });
+    data = result.data;
+    error = result.error;
+  }
 
   if (error) {
-    return { error: error.message };
+    console.error("Upload error:", error);
+    return { error: "Upload failed: " + error.message };
   }
 
   const { data: urlData } = service.storage
     .from(STORAGE_BUCKET)
     .getPublicUrl(data.path);
 
+  console.log("Upload success:", urlData.publicUrl);
   return { url: urlData.publicUrl };
 }
 
@@ -45,10 +57,14 @@ export async function deleteImage(url: string) {
   const path = url.split("/").pop();
   if (!path) return { error: "Invalid URL." };
 
-  const service = createServiceClient();
-  const { error } = await service.storage
-    .from(STORAGE_BUCKET)
-    .remove([path]);
+  let service = createServiceClient();
+  let { error } = await service.storage.from(STORAGE_BUCKET).remove([path]);
+
+  if (error) {
+    const supabase = await createClient();
+    const result = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    error = result.error;
+  }
 
   if (error) {
     return { error: error.message };
