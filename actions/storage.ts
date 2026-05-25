@@ -47,7 +47,7 @@ export async function uploadImage(formData: FormData) {
 
   const { data: urlData } = service.storage
     .from(STORAGE_BUCKET)
-    .getPublicUrl(data.path);
+    .getPublicUrl(data!.path);
 
   return { url: urlData.publicUrl };
 }
