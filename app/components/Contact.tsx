@@ -1,31 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import { submitContactMessage } from "@/actions/contact";
 
 export default function Contact() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null);
+  const formKeyRef = useRef(0);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSending(true);
-    setResult(null);
+  const [state, action, pending] = useActionState(
+    async (_prev: { success?: boolean; error?: string } | undefined, formData: FormData) => {
+      const res = await submitContactMessage(formData);
+      return res;
+    },
+    undefined
+  );
 
-    const formData = new FormData(e.currentTarget);
-    const res = await submitContactMessage(formData);
-    setResult(res);
-    setSending(false);
-
-    if (res?.success) {
-      e.currentTarget.reset();
-      setTimeout(() => {
-        setModalOpen(false);
-        setResult(null);
-      }, 2000);
-    }
+  const openModal = () => {
+    formKeyRef.current++;
+    setModalOpen(true);
   };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (state?.success) {
+      const t = setTimeout(() => {
+        setModalOpen(false);
+      }, 2000);
+      return () => clearTimeout(t);
+    }
+  }, [state]);
 
   return (
     <section id="contact">
@@ -60,7 +66,7 @@ export default function Contact() {
           </a>
 
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={openModal}
             className="contact-email-btn"
             style={{
               background: "none",
@@ -108,7 +114,7 @@ export default function Contact() {
 
       {modalOpen && (
         <div
-          onClick={() => { if (!result?.success) { setModalOpen(false); setResult(null); } }}
+          onClick={() => { if (!state?.success) { closeModal(); } }}
           style={{
             position: "fixed",
             inset: 0,
@@ -134,7 +140,8 @@ export default function Contact() {
             }}
           >
             <button
-              onClick={() => { setModalOpen(false); setResult(null); }}
+              onClick={closeModal}
+              type="button"
               style={{
                 position: "absolute",
                 top: 16,
@@ -171,7 +178,7 @@ export default function Contact() {
               Fill out the form below and I&apos;ll get back to you.
             </p>
 
-            {result?.success && (
+            {state?.success && (
               <p
                 style={{
                   fontSize: 13,
@@ -187,7 +194,7 @@ export default function Contact() {
               </p>
             )}
 
-            {result?.error && (
+            {state?.error && (
               <p
                 style={{
                   fontSize: 13,
@@ -199,17 +206,17 @@ export default function Contact() {
                   marginBottom: 16,
                 }}
               >
-                {result.error}
+                {state.error}
               </p>
             )}
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <form key={formKeyRef.current} action={action} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label htmlFor="name" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                <label htmlFor="modal-name" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
                   Name
                 </label>
                 <input
-                  id="name"
+                  id="modal-name"
                   name="name"
                   type="text"
                   required
@@ -228,11 +235,11 @@ export default function Contact() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label htmlFor="email" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                <label htmlFor="modal-email" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
                   Email
                 </label>
                 <input
-                  id="email"
+                  id="modal-email"
                   name="email"
                   type="email"
                   required
@@ -251,11 +258,11 @@ export default function Contact() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label htmlFor="message" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                <label htmlFor="modal-message" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
                   Message
                 </label>
                 <textarea
-                  id="message"
+                  id="modal-message"
                   name="message"
                   required
                   rows={5}
@@ -276,10 +283,10 @@ export default function Contact() {
 
               <button
                 type="submit"
-                disabled={sending}
+                disabled={pending}
                 style={{
                   padding: "14px 28px",
-                  background: "var(--accent)",
+                  background: state?.success ? "#2ecc71" : "var(--accent)",
                   color: "#0a0a0a",
                   border: "none",
                   borderRadius: 2,
@@ -288,11 +295,12 @@ export default function Contact() {
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   cursor: "pointer",
-                  opacity: sending ? 0.6 : 1,
+                  opacity: pending ? 0.6 : 1,
                   marginTop: 8,
+                  transition: "background 0.3s",
                 }}
               >
-                {sending ? "Sending..." : "Send Message"}
+                {pending ? "Sending..." : state?.success ? "Sent!" : "Send Message"}
               </button>
             </form>
           </div>
