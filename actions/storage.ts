@@ -40,16 +40,15 @@ export async function uploadImage(formData: FormData) {
     error = result.error;
   }
 
-  if (error) {
-    console.error("Upload error:", error);
-    return { error: "Upload failed: " + error.message };
+  if (error || !data?.path) {
+    console.error("Upload error:", error?.message ?? "No path returned");
+    return { error: "Upload failed: " + (error?.message ?? "unknown error") };
   }
 
   const { data: urlData } = service.storage
     .from(STORAGE_BUCKET)
     .getPublicUrl(data.path);
 
-  console.log("Upload success:", urlData.publicUrl);
   return { url: urlData.publicUrl };
 }
 
