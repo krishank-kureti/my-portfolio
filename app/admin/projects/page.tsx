@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getProjects } from "@/actions/projects";
 import { ProjectDeleteButton } from "./ProjectDeleteButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminProjects() {
   const projects = await getProjects();
 

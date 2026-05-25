@@ -1,6 +1,8 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import type { ContactMessage } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 async function getMessages(): Promise<ContactMessage[]> {
   const service = createServiceClient();
   const { data, error } = await service
