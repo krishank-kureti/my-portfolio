@@ -1,6 +1,6 @@
 "use server";
 
-import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 
 export async function submitContactMessage(formData: FormData) {
   const name = formData.get("name") as string;
@@ -23,8 +23,8 @@ export async function submitContactMessage(formData: FormData) {
   const sanitize = (s: string) =>
     s.replace(/<[^>]*>/g, "").replace(/[<>]/g, "");
 
-  const service = createServiceClient();
-  const { error } = await service.from("contact_messages").insert({
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_messages").insert({
     name: sanitize(name),
     email: sanitize(email),
     message: sanitize(message),
