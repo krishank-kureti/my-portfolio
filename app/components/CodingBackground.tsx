@@ -60,7 +60,7 @@ export default function CodingBackground() {
         fontSize: "14px",
         lineHeight: 1.6,
         color: "#bbbbbb",
-        opacity: 0.60,
+        opacity: 0.55,
         padding: "48px",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
