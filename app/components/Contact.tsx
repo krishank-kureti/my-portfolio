@@ -61,34 +61,14 @@ export default function Contact() {
 
           <button
             onClick={() => setModalOpen(true)}
+            className="contact-email-btn"
             style={{
-              padding: "16px 40px",
-              border: "1px solid var(--border2)",
-              color: "var(--text)",
               background: "none",
-              fontFamily: "var(--mono)",
-              fontSize: 14,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
               cursor: "pointer",
-              position: "relative",
-              overflow: "hidden",
-              transition: "border-color 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "var(--accent)";
-              e.currentTarget.style.color = "#0a0a0a";
-              const pseudo = e.currentTarget.querySelector("span") as HTMLElement;
-              if (pseudo) pseudo.style.color = "#0a0a0a";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "var(--border2)";
-              e.currentTarget.style.color = "var(--text)";
+              fontFamily: "var(--mono)",
             }}
           >
-            <span style={{ position: "relative", zIndex: 1 }}>
-              Send Message
-            </span>
+            <span>Send Message</span>
           </button>
         </div>
 
