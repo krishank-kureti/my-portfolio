@@ -1,4 +1,32 @@
+"use client";
+
+import { useState } from "react";
+import { submitContactMessage } from "@/actions/contact";
+
 export default function Contact() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSending(true);
+    setResult(null);
+
+    const formData = new FormData(e.currentTarget);
+    const res = await submitContactMessage(formData);
+    setResult(res);
+    setSending(false);
+
+    if (res?.success) {
+      e.currentTarget.reset();
+      setTimeout(() => {
+        setModalOpen(false);
+        setResult(null);
+      }, 2000);
+    }
+  };
+
   return (
     <section id="contact">
       <div className="contact-inner">
@@ -15,20 +43,54 @@ export default function Contact() {
           opportunities, ideas, and collaborations.
         </p>
 
-        <a href="mailto:kuretikrishank@gmail.com" className="contact-email-btn">
-          <span>Get In Touch</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            style={{ position: "relative", zIndex: 1 }}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 64, flexWrap: "wrap" }}>
+          <a href="mailto:kuretikrishank@gmail.com" className="contact-email-btn">
+            <span>Get In Touch</span>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              style={{ position: "relative", zIndex: 1 }}
+            >
+              <path d="M2 12L12 2M12 2H6M12 2v6" />
+            </svg>
+          </a>
+
+          <button
+            onClick={() => setModalOpen(true)}
+            style={{
+              padding: "16px 40px",
+              border: "1px solid var(--border2)",
+              color: "var(--text)",
+              background: "none",
+              fontFamily: "var(--mono)",
+              fontSize: 14,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              position: "relative",
+              overflow: "hidden",
+              transition: "border-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.color = "#0a0a0a";
+              const pseudo = e.currentTarget.querySelector("span") as HTMLElement;
+              if (pseudo) pseudo.style.color = "#0a0a0a";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border2)";
+              e.currentTarget.style.color = "var(--text)";
+            }}
           >
-            <path d="M2 12L12 2M12 2H6M12 2v6" />
-          </svg>
-        </a>
+            <span style={{ position: "relative", zIndex: 1 }}>
+              Send Message
+            </span>
+          </button>
+        </div>
 
         <div className="contact-links">
           <a
@@ -63,6 +125,199 @@ export default function Contact() {
           </a>
         </div>
       </div>
+
+      {modalOpen && (
+        <div
+          onClick={() => { if (!result?.success) { setModalOpen(false); setResult(null); } }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.8)",
+            backdropFilter: "blur(4px)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "var(--bg2)",
+              border: "1px solid var(--border)",
+              borderRadius: 2,
+              padding: 40,
+              width: "100%",
+              maxWidth: 480,
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => { setModalOpen(false); setResult(null); }}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 20,
+                background: "none",
+                border: "none",
+                color: "var(--muted)",
+                fontSize: 20,
+                cursor: "pointer",
+                fontFamily: "var(--mono)",
+              }}
+            >
+              &times;
+            </button>
+
+            <h3
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: 24,
+                color: "var(--text)",
+                marginBottom: 8,
+              }}
+            >
+              Send a Message
+            </h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--muted)",
+                marginBottom: 28,
+                lineHeight: 1.7,
+              }}
+            >
+              Fill out the form below and I&apos;ll get back to you.
+            </p>
+
+            {result?.success && (
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#2ecc71",
+                  padding: "10px 14px",
+                  background: "rgba(46, 204, 113, 0.1)",
+                  border: "1px solid rgba(46, 204, 113, 0.2)",
+                  borderRadius: 2,
+                  marginBottom: 16,
+                }}
+              >
+                Message sent successfully!
+              </p>
+            )}
+
+            {result?.error && (
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#e74c3c",
+                  padding: "10px 14px",
+                  background: "rgba(231, 76, 60, 0.1)",
+                  border: "1px solid rgba(231, 76, 60, 0.2)",
+                  borderRadius: 2,
+                  marginBottom: 16,
+                }}
+              >
+                {result.error}
+              </p>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label htmlFor="name" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  maxLength={100}
+                  style={{
+                    padding: "10px 14px",
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 2,
+                    color: "var(--text)",
+                    fontFamily: "var(--mono)",
+                    fontSize: 14,
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label htmlFor="email" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={200}
+                  style={{
+                    padding: "10px 14px",
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 2,
+                    color: "var(--text)",
+                    fontFamily: "var(--mono)",
+                    fontSize: 14,
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label htmlFor="message" style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent2)" }}>
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={5}
+                  maxLength={5000}
+                  style={{
+                    padding: "10px 14px",
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 2,
+                    color: "var(--text)",
+                    fontFamily: "var(--mono)",
+                    fontSize: 14,
+                    outline: "none",
+                    resize: "vertical",
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={sending}
+                style={{
+                  padding: "14px 28px",
+                  background: "var(--accent)",
+                  color: "#0a0a0a",
+                  border: "none",
+                  borderRadius: 2,
+                  fontFamily: "var(--mono)",
+                  fontSize: 13,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  opacity: sending ? 0.6 : 1,
+                  marginTop: 8,
+                }}
+              >
+                {sending ? "Sending..." : "Send Message"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
