@@ -401,54 +401,74 @@ section {
   font-size: 14px;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
+/* ─── CAROUSEL ──────────────────────────────────────────── */
+.carousel {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.carousel-viewport {
+  flex: 1;
+  overflow: hidden;
   border: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.carousel-slide {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
 }
 
 .project-card {
-  background: var(--bg2);
-  padding: 36px 32px;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.3s;
-  cursor: pointer;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.project-card::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
+.project-card-image {
   width: 100%;
-  height: 1px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s ease;
+  height: 300px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
 }
 
-.project-card:hover {
+.project-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-card-image--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--bg3);
 }
 
-.project-card:hover::before {
-  transform: scaleX(1);
+.project-card-image--empty span {
+  font-family: var(--serif);
+  font-size: 64px;
+  color: var(--border2);
+}
+
+.project-card-body {
+  padding: 40px 48px;
 }
 
 .project-num {
   font-size: 12px;
   letter-spacing: 0.18em;
   color: var(--border2);
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .project-name {
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: 28px;
   color: var(--text);
   margin-bottom: 12px;
   line-height: 1.2;
@@ -458,13 +478,15 @@ section {
   font-size: 14px;
   color: var(--muted);
   line-height: 1.8;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  max-width: 600px;
 }
 
 .project-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-bottom: 24px;
 }
 
 .project-tag {
@@ -476,19 +498,95 @@ section {
   border-radius: 1px;
 }
 
-.project-arrow {
-  position: absolute;
-  top: 36px;
-  right: 32px;
-  width: 20px;
-  height: 20px;
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
+.project-card-links {
+  display: flex;
+  gap: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
-.project-card:hover .project-arrow {
-  opacity: 1;
-  transform: translate(4px, -4px);
+.project-card-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.project-card-link:hover {
+  color: var(--accent);
+}
+
+/* ─── CAROUSEL BUTTONS ──────────────────────────────────── */
+.carousel-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.carousel-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.carousel-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg3);
+}
+
+/* ─── CAROUSEL DOTS ─────────────────────────────────────── */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.carousel-dot--active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .project-card-image {
+    height: 200px;
+  }
+  .project-card-body {
+    padding: 28px 24px;
+  }
+  .project-name {
+    font-size: 22px;
+  }
+  .carousel-btn {
+    display: none;
+  }
 }
 
 /* ─── CONTACT SECTION ──────────────────────────────────── */
