@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, DM_Mono } from "next/font/google";
 import "./globals.css";
-import CodingBackground from "./components/CodingBackground";
 
 const dmSerif = DM_Serif_Display({
   variable: "--serif",
@@ -28,7 +27,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSerif.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <body>
-        <CodingBackground />
         {children}
       </body>
     </html>

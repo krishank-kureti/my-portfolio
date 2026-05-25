@@ -1,5 +1,218 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# AGENTS.md — Krishank Kureti Portfolio
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+## Project Overview
+
+Personal portfolio website for Krishank Kureti, a Full Stack Developer.
+Dark, minimal, typographic aesthetic.
+Built with **Next.js 16** (App Router) + **TypeScript** + **Three.js**.
+All styles are plain CSS (no Tailwind) via `globals.css`.
+
+## File Structure
+
+```
+portfolio/
+├── app/
+│   ├── layout.tsx                  ← root layout (DM Serif Display + DM Mono fonts)
+│   ├── page.tsx                    ← home page (boot screen, cursor, sections)
+│   ├── globals.css                 ← all CSS: tokens, reset, component styles
+│   └── components/
+│       ├── BootScreen.tsx           ← Linux terminal boot animation (5-6s)
+│       ├── CodingBackground.tsx     ← typing code animation background
+│       ├── Navbar.tsx               ← fixed nav with scroll-based frosted bg
+│       ├── Hero.tsx                 ← 2-col hero: text left, Three.js canvas right
+│       ├── NeuralNetworkCanvas.tsx   ← Three.js neural network animation
+│       ├── About.tsx                ← bio, skills, stats
+│       ├── Projects.tsx             ← 3-col project card grid
+│       ├── Contact.tsx              ← CTA + social links
+│       └── Footer.tsx               ← copyright line
+├── next.config.ts
+├── tsconfig.json
+├── package.json
+└── index.html                      ← (legacy) old single-file version
+```
+
+## Development Commands
+
+```bash
+cd portfolio
+
+# Install dependencies
+npm install
+
+# Dev server (hot reload)
+npm run dev              # → http://localhost:3000
+
+# Production build
+npm run build
+
+# Start production server
+npm start
+
+# Lint
+npm run lint
+```
+
+### Running a Single Test
+
+No test framework is configured. To add tests:
+
+```bash
+# Install test dependencies
+npm install -D vitest @testing-library/react @testing-library/jest-dom
+
+# Run a single test file
+npx vitest run app/components/Hero.test.tsx
+
+# Run a single test by name
+npx vitest run --testNamePattern="should render hero"
+
+# Run tests in watch mode
+npx vitest
+```
+
+## Build / Deploy
+
+```bash
+# Vercel (recommended)
+npx vercel
+
+# Static export (if needed)
+# Add `output: 'export'` to next.config.ts, then:
+npm run build && npx serve out/
+```
+
+## Design Rules (Non-Negotiable)
+
+1. **Background is always dark** — `#0a0a0a` or `#111111`. Never white, never gray.
+2. **Two fonts only** — `DM Serif Display` for headings, `DM Mono` for everything else.
+3. **Accent is warm gold** — `#c8b89a`. Never blue, purple, or green.
+4. **Borders are near-invisible** — `rgba(255,255,255,0.07)`. Never solid white borders.
+5. **No box shadows** — depth via background color differences only.
+6. **Italic = emphasis** — use `<em>` inside headings for signature italic-serif style.
+7. **Uppercase labels** — section labels, nav links, tags use `text-transform: uppercase` + wide letter-spacing.
+8. **Animations are subtle** — fade + translate only. No bounce, spin, or flash.
+9. **Custom cursor on desktop** — `cursor: none` on body, replaced by `.cursor` and `.cursor-ring`.
+10. **No Tailwind** — all styling is plain CSS in `globals.css`.
+
+## CSS Style Guide
+
+### Design Tokens (CSS Custom Properties)
+
+Defined in `:root` in `globals.css`. Always reference variables, never hardcode:
+
+```css
+--bg: #0a0a0a       --bg2: #111111      --bg3: #1a1a1a
+--border: rgba(255,255,255,0.07)
+--border2: rgba(255,255,255,0.13)
+--text: #f0ede6     --muted: #bbbbbb
+--accent: #c8b89a   --accent2: #8a7a64
+--serif: DM Serif Display
+--mono: DM Mono
+```
+
+### Naming Conventions
+
+- **Sections**: `#hero`, `#about`, `#projects`, `#contact`
+- **Components**: BEM-like — `.project-card`, `.project-name`, `.project-tags`
+- **Layout**: `.section-inner`, `.about-grid`, `.projects-grid`, `.hero-container`
+- **Utilities**: `.fade-up`, `.visible`
+
+### Responsive
+
+- Uses `clamp()` for fluid typography on headings
+- Section padding: `0 48px` sides, `.section-inner` max-width `1100px`
+
+## TypeScript / React Style Guide
+
+### Imports
+
+```tsx
+"use client";  // Always first in client components
+
+import { useState, useEffect, useRef } from "react";  // React hooks
+import * as THREE from "three";  // Three.js imports
+import BootScreen from "./BootScreen";  // Components (absolute/relative paths)
+```
+
+### Component Structure
+
+- All components use `"use client"` directive (this is a client-rendered portfolio)
+- Use `export default function ComponentName()` pattern
+- Destructure props with TypeScript types:
+  ```tsx
+  interface Props {
+    onDone: () => void;
+  }
+  export default function BootScreen({ onDone }: Props) { ... }
+  ```
+
+### Hooks & State
+
+- Use `useRef` for DOM references and mutable values that don't trigger re-renders
+- Use `useEffect` for DOM access (cursor, Three.js, observers, intervals)
+- Use `useState` for reactive state
+- Always clean up in `useEffect` return function
+
+### Event Handlers
+
+- Use arrow functions for event handlers:
+  ```tsx
+  const handleMouseMove = (e: MouseEvent) => { ... };
+  ```
+
+### Animation Loops
+
+- Use `requestAnimationFrame` for cursor and Three.js animation loops
+- Use `setInterval` for periodic updates (with cleanup)
+- Three.js: use `useEffect` with cleanup (dispose renderer, remove DOM element)
+
+### Scroll Animations
+
+- Use `IntersectionObserver` for scroll-triggered `.fade-up` animations
+- Threshold: `0.15`
+
+### Three.js (NeuralNetworkCanvas)
+
+- Initialized in `useEffect` with cleanup on unmount
+- Transparent background (`alpha: true`, `setClearColor(0x000000, 0)`)
+- `pointer-events: none` on the canvas container
+- Animation: forward propagation through layers, wave motion, random edge flicker
+- Keep it subtle — matches the minimal dark aesthetic
+
+## Adding a New Project Card
+
+Add an entry to the `projects` array in `Projects.tsx`:
+
+```tsx
+{
+  num: "004",
+  name: "Project Name",
+  desc: "Description of the project.",
+  tags: ["Tech1", "Tech2"],
+}
+```
+
+Update `transitionDelay` logic and `project-count` text accordingly.
+
+## Verification Checklist
+
+Before completing any change:
+
+- [ ] `npm run build` succeeds with no errors
+- [ ] `npm run lint` passes
+- [ ] Boot screen runs for 5-6 seconds, then transitions to main site
+- [ ] Coding background typing animation is visible (18% opacity)
+- [ ] Custom cursor dot follows mouse; ring lags behind
+- [ ] Nav bar becomes frosted on scroll
+- [ ] All `.fade-up` elements animate when scrolled into view
+- [ ] Neural network animation renders in hero right column
+- [ ] Project card hover: accent line fills from left, arrow appears
+- [ ] Contact button: gold fill animates from left on hover
+- [ ] Page renders correctly at 1280px+ desktop width
+
+## Known Placeholders (Update When Ready)
+
+- Project names (Alpha/Beta/Gamma) — replace with real names
+- Project descriptions — replace with real summaries
+- Project tech tags — replace with actual stacks
+- Boot screen: update "krishank@dev" to actual username if needed
