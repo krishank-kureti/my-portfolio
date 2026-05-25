@@ -23,7 +23,7 @@ export default function Hero() {
 
       {/* Content overlay */}
       <div className="hero-content">
-        <p className="hero-label">Full Stack Developer — Based in India</p>
+        <p className="hero-label">Full Stack Developer — Based in Bangalore</p>
 
         <h1 className="hero-name">
           Krishank
@@ -33,7 +33,7 @@ export default function Hero() {
 
         <p className="hero-desc">
           I design and build digital experiences that incorporate any form of
-          AI — from idea to production.
+          AI from idea to production.
         </p>
 
         <a href="#projects" className="hero-cta">
