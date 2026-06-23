@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  # Run every 12 hours to ensure the DB doesn't pause (Free tier pauses after 7 days)
+  schedule:
+    - cron: '0 */12 * * *' 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+          || echo "Ping failed, but continuing..."
