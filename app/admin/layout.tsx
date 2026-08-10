@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { signOut } from "@/actions/auth";
 
@@ -13,16 +11,10 @@ export default function AdminLayout({
 }) {
   useEffect(() => {
     document.body.style.cursor = "auto";
-    return () => { document.body.style.cursor = "none"; };
+    return () => {
+      document.body.style.cursor = "none";
+    };
   }, []);
-  const router = useRouter();
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) router.push("/admin/login");
-    });
-  }, [router]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>

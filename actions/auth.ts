@@ -2,14 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth/server";
 
 export async function signIn(
   _prevState: { error: string } | undefined,
   formData: FormData
 ): Promise<{ error: string } | undefined> {
-  const supabase = await createClient();
-
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -17,13 +15,10 @@ export async function signIn(
     return { error: "Email and password are required." };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { error } = await auth.signIn.email({ email, password });
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message || "Failed to sign in." };
   }
 
   revalidatePath("/admin");
@@ -31,8 +26,7 @@ export async function signIn(
 }
 
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  await auth.signOut();
   revalidatePath("/admin/login");
   redirect("/admin/login");
 }

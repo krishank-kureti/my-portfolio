@@ -7,6 +7,38 @@ Dark, minimal, typographic aesthetic.
 Built with **Next.js 16** (App Router) + **TypeScript** + **Three.js**.
 All styles are plain CSS (no Tailwind) via `globals.css`.
 
+### Backend stack
+
+| Concern | Service |
+|---------|---------|
+| Database | **Neon Postgres** (Singapore `aws-ap-southeast-1`) |
+| Auth | **Neon Auth** (Managed Better Auth) |
+| File storage | **Vercel Blob** (public, project cover images) |
+| Hosting | **Vercel** |
+
+Server Actions under `actions/` talk to Neon via `@neondatabase/serverless` and to Blob via `@vercel/blob`. There is no separate API server.
+
+### Environment variables
+
+See `.env.example`. Required:
+
+- `DATABASE_URL` — Neon pooler connection string
+- `NEON_AUTH_BASE_URL` — Neon Auth base URL
+- `NEON_AUTH_COOKIE_SECRET` — 32+ char secret (`openssl rand -base64 32`)
+- `BLOB_READ_WRITE_TOKEN` — from Vercel Blob store (or OIDC on Vercel)
+
+### Schema
+
+SQL migrations live in `db/migrations/`. Apply via Neon MCP/console or `psql`.
+
+### Create first admin user
+
+```bash
+node scripts/create-admin.mjs you@email.com 'your-password' 'Your Name'
+```
+
+Then sign in at `/admin/login`. Optionally disable public sign-up in Neon Console after.
+
 ## File Structure
 
 ```
@@ -15,20 +47,28 @@ portfolio/
 │   ├── layout.tsx                  ← root layout (DM Serif Display + DM Mono fonts)
 │   ├── page.tsx                    ← home page (boot screen, cursor, sections)
 │   ├── globals.css                 ← all CSS: tokens, reset, component styles
+│   ├── api/auth/[...path]/route.ts ← Neon Auth proxy handlers
+│   ├── admin/                      ← CMS (projects, messages, login)
 │   └── components/
-│       ├── BootScreen.tsx           ← Linux terminal boot animation (5-6s)
-│       ├── CodingBackground.tsx     ← typing code animation background
-│       ├── Navbar.tsx               ← fixed nav with scroll-based frosted bg
-│       ├── Hero.tsx                 ← 2-col hero: text left, Three.js canvas right
-│       ├── NeuralNetworkCanvas.tsx   ← Three.js neural network animation
-│       ├── About.tsx                ← bio, skills, stats
-│       ├── Projects.tsx             ← 3-col project card grid
-│       ├── Contact.tsx              ← CTA + social links
-│       └── Footer.tsx               ← copyright line
+│       ├── BootScreen.tsx
+│       ├── CodingBackground.tsx
+│       ├── Navbar.tsx
+│       ├── Hero.tsx
+│       ├── NeuralNetworkCanvas.tsx
+│       ├── About.tsx
+│       ├── Projects.tsx            ← loads projects from Neon
+│       ├── Contact.tsx             ← inserts into contact_messages
+│       ├── AdminProjectForm.tsx
+│       └── Footer.tsx
+├── actions/                        ← server actions (auth, projects, contact, storage)
+├── lib/
+│   ├── db.ts                       ← Neon SQL client
+│   └── auth/                       ← Neon Auth server + client
+├── db/migrations/                  ← Postgres schema
+├── proxy.ts                        ← protects /admin (Neon Auth middleware)
 ├── next.config.ts
 ├── tsconfig.json
-├── package.json
-└── index.html                      ← (legacy) old single-file version
+└── package.json
 ```
 
 ## Development Commands
@@ -210,9 +250,9 @@ Before completing any change:
 - [ ] Contact button: gold fill animates from left on hover
 - [ ] Page renders correctly at 1280px+ desktop width
 
-## Known Placeholders (Update When Ready)
+## Known Placeholders / Follow-ups
 
-- Project names (Alpha/Beta/Gamma) — replace with real names
-- Project descriptions — replace with real summaries
-- Project tech tags — replace with actual stacks
-- Boot screen: update "krishank@dev" to actual username if needed
+- Projects are empty until you add them in `/admin` (Supabase project was already unreachable during migration)
+- Create admin: `node scripts/create-admin.mjs email password 'Name'`
+- Create Vercel Blob store (public), add `BLOB_READ_WRITE_TOKEN` to `.env.local` and Vercel project env
+- Set `DATABASE_URL`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` on Vercel for production

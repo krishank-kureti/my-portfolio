@@ -1,39 +1,38 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
+import { getSql } from "@/lib/db";
 import type { Project } from "@/types";
 
 export async function getProjects(): Promise<Project[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT *
+      FROM projects
+      ORDER BY created_at DESC
+    `;
+    return rows as Project[];
+  } catch (error) {
     console.error("Error fetching projects:", error);
     return [];
   }
-
-  return data ?? [];
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (error) {
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT *
+      FROM projects
+      WHERE slug = ${slug}
+      LIMIT 1
+    `;
+    return (rows[0] as Project) ?? null;
+  } catch (error) {
     console.error("Error fetching project:", error);
     return null;
   }
-
-  return data;
 }
 
 export async function createProject(formData: FormData) {
@@ -54,20 +53,28 @@ export async function createProject(formData: FormData) {
     ? techStackRaw.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
 
-  const service = createServiceClient();
-  const { error } = await service.from("projects").insert({
-    title,
-    slug,
-    description,
-    tech_stack,
-    github_url: githubUrl || null,
-    live_url: liveUrl || null,
-    featured,
-    cover_image_url: coverImageUrl || null,
-  });
-
-  if (error) {
-    return { error: error.message };
+  try {
+    const sql = getSql();
+    await sql`
+      INSERT INTO projects (
+        title, slug, description, tech_stack,
+        github_url, live_url, featured, cover_image_url
+      ) VALUES (
+        ${title},
+        ${slug},
+        ${description},
+        ${tech_stack},
+        ${githubUrl || null},
+        ${liveUrl || null},
+        ${featured},
+        ${coverImageUrl || null}
+      )
+    `;
+  } catch (error) {
+    console.error("Error creating project:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to create project.",
+    };
   }
 
   revalidatePath("/");
@@ -93,23 +100,26 @@ export async function updateProject(slug: string, formData: FormData) {
     ? techStackRaw.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
 
-  const service = createServiceClient();
-  const { error } = await service
-    .from("projects")
-    .update({
-      title,
-      slug: newSlug,
-      description,
-      tech_stack,
-      github_url: githubUrl || null,
-      live_url: liveUrl || null,
-      featured,
-      cover_image_url: coverImageUrl || null,
-    })
-    .eq("slug", slug);
-
-  if (error) {
-    return { error: error.message };
+  try {
+    const sql = getSql();
+    await sql`
+      UPDATE projects
+      SET
+        title = ${title},
+        slug = ${newSlug},
+        description = ${description},
+        tech_stack = ${tech_stack},
+        github_url = ${githubUrl || null},
+        live_url = ${liveUrl || null},
+        featured = ${featured},
+        cover_image_url = ${coverImageUrl || null}
+      WHERE slug = ${slug}
+    `;
+  } catch (error) {
+    console.error("Error updating project:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to update project.",
+    };
   }
 
   revalidatePath("/");
@@ -118,14 +128,14 @@ export async function updateProject(slug: string, formData: FormData) {
 }
 
 export async function deleteProject(slug: string) {
-  const service = createServiceClient();
-  const { error } = await service
-    .from("projects")
-    .delete()
-    .eq("slug", slug);
-
-  if (error) {
-    return { error: error.message };
+  try {
+    const sql = getSql();
+    await sql`DELETE FROM projects WHERE slug = ${slug}`;
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to delete project.",
+    };
   }
 
   revalidatePath("/");

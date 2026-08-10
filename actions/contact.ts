@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { getSql } from "@/lib/db";
 
 export async function submitContactMessage(formData: FormData) {
   const name = formData.get("name") as string;
@@ -23,14 +23,17 @@ export async function submitContactMessage(formData: FormData) {
   const sanitize = (s: string) =>
     s.replace(/<[^>]*>/g, "").replace(/[<>]/g, "");
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("contact_messages").insert({
-    name: sanitize(name),
-    email: sanitize(email),
-    message: sanitize(message),
-  });
-
-  if (error) {
+  try {
+    const sql = getSql();
+    await sql`
+      INSERT INTO contact_messages (name, email, message)
+      VALUES (
+        ${sanitize(name)},
+        ${sanitize(email)},
+        ${sanitize(message)}
+      )
+    `;
+  } catch (error) {
     console.error("Contact form error:", error);
     return { error: "Failed to send message. Please try again." };
   }

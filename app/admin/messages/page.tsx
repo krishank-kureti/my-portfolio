@@ -1,21 +1,21 @@
-import { createServiceClient } from "@/lib/supabase/service";
+import { getSql } from "@/lib/db";
 import type { ContactMessage } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 async function getMessages(): Promise<ContactMessage[]> {
-  const service = createServiceClient();
-  const { data, error } = await service
-    .from("contact_messages")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT *
+      FROM contact_messages
+      ORDER BY created_at DESC
+    `;
+    return rows as ContactMessage[];
+  } catch (error) {
     console.error("Error fetching messages:", error);
     return [];
   }
-
-  return data ?? [];
 }
 
 export default async function AdminMessages() {

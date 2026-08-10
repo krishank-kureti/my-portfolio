@@ -1,8 +1,6 @@
 "use server";
 
-import { createServiceClient } from "@/lib/supabase/service";
-import { createClient } from "@/lib/supabase/server";
-import { STORAGE_BUCKET } from "@/lib/constants";
+import { put, del } from "@vercel/blob";
 
 export async function uploadImage(formData: FormData) {
   const file = formData.get("file") as File | null;
@@ -21,53 +19,31 @@ export async function uploadImage(formData: FormData) {
     return { error: "File must be an image (png, jpg, webp, gif)." };
   }
 
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-  // Try service client first (bypasses RLS), then fall back to server client
-  let service = createServiceClient();
-  let { data, error } = await service.storage
-    .from(STORAGE_BUCKET)
-    .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-  // If service client fails (e.g. missing env var on Vercel), try server client
-  if (error) {
-    console.warn("Service client upload failed:", error.message);
-    const supabase = await createClient();
-    const result = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(fileName, file, { cacheControl: "3600", upsert: false });
-    data = result.data;
-    error = result.error;
+  try {
+    const blob = await put(`projects/${Date.now()}-${file.name}`, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+    return { url: blob.url };
+  } catch (error) {
+    console.error("Upload error:", error);
+    return {
+      error:
+        "Upload failed: " +
+        (error instanceof Error ? error.message : "unknown error"),
+    };
   }
-
-  if (error || !data?.path) {
-    console.error("Upload error:", error?.message ?? "No path returned");
-    return { error: "Upload failed: " + (error?.message ?? "unknown error") };
-  }
-
-  const { data: urlData } = service.storage
-    .from(STORAGE_BUCKET)
-    .getPublicUrl(data!.path);
-
-  return { url: urlData.publicUrl };
 }
 
 export async function deleteImage(url: string) {
-  const path = url.split("/").pop();
-  if (!path) return { error: "Invalid URL." };
+  if (!url) return { error: "Invalid URL." };
 
-  let service = createServiceClient();
-  let { error } = await service.storage.from(STORAGE_BUCKET).remove([path]);
-
-  if (error) {
-    const supabase = await createClient();
-    const result = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
-    error = result.error;
+  try {
+    await del(url);
+    return { success: true };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Failed to delete image.",
+    };
   }
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return { success: true };
 }
