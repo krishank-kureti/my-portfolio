@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 
 const snippets = [
-  "// JavaScript - Async Data Fetching\nconst fetchData = async (url, options = {}) => {\n  try {\n    const response = await fetch(url, {\n      method: 'GET',\n      headers: { 'Content-Type': 'application/json' },\n      ...options\n    });\n    if (!response.ok) throw new Error('Fetch failed');\n    return await response.json();\n  } catch (error) {\n    console.error('Error fetching data:', error);\n    return null;\n  }\n};",
-  "// TypeScript - User Management System\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n  role: 'admin' | 'user' | 'guest';\n  createdAt: Date;\n}\n\nclass UserManager {\n  private users: User[] = [];\n\n  addUser(user: Omit<User, 'id' | 'createdAt'>): User {\n    const newUser: User = {\n      ...user,\n      id: this.users.length + 1,\n      createdAt: new Date()\n    };\n    this.users.push(newUser);\n    return newUser;\n  }\n\n  findUser(id: number): User | undefined {\n    return this.users.find(u => u.id === id);\n  }\n}",
-  "# Python - Data Processing Pipeline\nimport pandas as pd\nimport numpy as np\nfrom typing import List, Dict\n\ndef process_dataset(file_path: str) -> pd.DataFrame:\n    \"\"\"Load and process dataset with validation.\"\"\"\n    df = pd.read_csv(file_path)\n    \n    # Clean missing values\n    df = df.dropna(subset=['critical_column'])\n    df = df.fillna({'optional_field': 'N/A'})\n    \n    return df",
+  "# Python — Training loop\nimport torch\nimport torch.nn.functional as F\n\ndef train_epoch(model, loader, opt):\n    model.train()\n    total = 0.0\n    for x, y in loader:\n        opt.zero_grad()\n        logits = model(x)\n        loss = F.cross_entropy(logits, y)\n        loss.backward()\n        opt.step()\n        total += loss.item()\n    return total / len(loader)",
+  "# Python — Inference\nfrom transformers import pipeline\n\nrun = pipeline(\n    \"text-generation\",\n    model=\"Qwen/Qwen2.5-7B-Instruct\",\n)\n\ndef complete(prompt: str) -> str:\n    out = run(prompt, max_new_tokens=256, temperature=0.7)\n    return out[0][\"generated_text\"]",
+  "// TypeScript — Ship the model\nexport async function infer(input: string) {\n  const res = await fetch(\"/api/infer\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ input }),\n  });\n  if (!res.ok) throw new Error(\"Inference failed\");\n  return res.json() as Promise<{ output: string }>;\n}",
 ];
 
 export default function CodingBackground() {

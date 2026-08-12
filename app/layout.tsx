@@ -15,8 +15,9 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Krishank Kureti — Full Stack Developer",
-  description: "Krishank Kureti — Full Stack Developer",
+  title: "Krishank Kureti — AI Engineer",
+  description:
+    "AI engineer with a keen interest in machine learning, and just enough full-stack to ship.",
   icons: {
     icon: "/icon.png",
   },

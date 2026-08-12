@@ -42,11 +42,11 @@ export default function Contact() {
         <h2 className="contact-headline">
           Let&apos;s build
           <br />
-          something <em>great.</em>
+          something <em>intelligent.</em>
         </h2>
         <p className="contact-sub">
-          Have a project in mind? I&apos;m always open to discussing new
-          opportunities, ideas, and collaborations.
+          Have an idea that needs intelligence baked in? I&apos;m open to
+          roles, collaborations, and the occasional build.
         </p>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 64, flexWrap: "wrap" }}>

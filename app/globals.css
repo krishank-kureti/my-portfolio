@@ -180,6 +180,46 @@ section {
   height: 100%;
 }
 
+.hero-model-hint {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  opacity: 0;
+  text-shadow:
+    0 0 6px rgba(200, 184, 154, 0.75),
+    0 0 16px rgba(200, 184, 154, 0.45),
+    0 0 32px rgba(200, 184, 154, 0.22);
+  animation: hintIn 0.8s 1s both, hintGlow 3.6s 1s ease-in-out infinite;
+}
+
+@keyframes hintIn {
+  from { transform: translateX(-50%) translateY(-12px); }
+  to   { transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes hintGlow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-model-hint {
+    animation: none;
+    opacity: 0.85;
+    transform: translateX(-50%);
+  }
+}
+
 .hero-label {
   font-size: 13px;
   letter-spacing: 0.2em;
@@ -575,6 +615,10 @@ section {
 }
 
 @media (max-width: 768px) {
+  .hero-model-hint {
+    display: none;
+  }
+
   .project-card-image {
     height: 200px;
   }

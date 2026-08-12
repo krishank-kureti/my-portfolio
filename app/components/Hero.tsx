@@ -19,11 +19,12 @@ export default function Hero() {
       {/* CNN canvas positioned on right side */}
       <div className="hero-right">
         <NeuralNetworkCanvas />
+        <p className="hero-model-hint">Drag to explore</p>
       </div>
 
       {/* Content overlay */}
       <div className="hero-content">
-        <p className="hero-label">Full Stack Developer — Based in Bangalore</p>
+        <p className="hero-label">AI Engineer — Based in Bangalore</p>
 
         <h1 className="hero-name">
           Krishank
@@ -32,8 +33,8 @@ export default function Hero() {
         </h1>
 
         <p className="hero-desc">
-          I design and build digital experiences that incorporate any form of
-          AI from idea to production.
+          I build intelligent systems. Machine learning is the pull; a little
+          full-stack is how they reach people.
         </p>
 
         <a href="#projects" className="hero-cta">

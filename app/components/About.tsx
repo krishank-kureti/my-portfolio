@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 
 const skills = [
-  "React", "Next.js", "Node.js", "TypeScript",
-  "PostgreSQL", "MongoDB", "REST APIs", "GraphQL",
-  "Docker", "Git", "Tailwind CSS", "AWS",
+  "Python", "Machine Learning", "Neural Nets", "LLMs",
+  "TypeScript", "Next.js", "Node.js", "PostgreSQL",
+  "Docker", "Git", "REST APIs", "AWS",
 ];
 
 export default function About() {
@@ -33,28 +33,29 @@ export default function About() {
         <div className="about-grid">
           <div>
             <h2 className="about-title">
-              Building things
+              Building systems
               <br />
-              that <em>matter.</em>
+              that <em>learn.</em>
             </h2>
             <p className="about-body">
-              I&apos;m a full stack developer who cares about every layer of the
-              stack — from database schema to pixel-perfect UI. I like working on
-              products that solve real problems.
+              I&apos;m an AI engineer with a keen interest in machine learning —
+              how models pick up patterns, fail, and get better. I still reach
+              for the full stack when a system needs a product around it, but
+              the work I care about is intelligence.
             </p>
             <p className="about-body">
-              When I&apos;m not coding, I&apos;m reading about systems design,
-              exploring new tools, or thinking about how software can be both
-              performant and beautiful.
+              When I&apos;m not training or wiring models, I&apos;m reading
+              papers, tinkering with architectures, or thinking about how AI
+              can be both useful and well-built.
             </p>
             <div className="about-stat-row fade-up">
               <div>
                 <div className="stat-num">∞</div>
-                <div className="stat-label">Problems solved</div>
+                <div className="stat-label">Always learning</div>
               </div>
               <div>
                 <div className="stat-num">01</div>
-                <div className="stat-label">Developer. Always.</div>
+                <div className="stat-label">AI first.</div>
               </div>
             </div>
           </div>
@@ -73,7 +74,7 @@ export default function About() {
               Currently
             </p>
             <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 2 }}>
-              Open to full-time opportunities and interesting freelance projects.
+              Open to AI roles and interesting freelance work.
               Let&apos;s build something together.
             </p>
           </div>

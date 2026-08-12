@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Personal portfolio website for Krishank Kureti, a Full Stack Developer.
+Personal portfolio website for Krishank Kureti, an AI Engineer.
 Dark, minimal, typographic aesthetic.
 Built with **Next.js 16** (App Router) + **TypeScript** + **Three.js**.
 All styles are plain CSS (no Tailwind) via `globals.css`.
